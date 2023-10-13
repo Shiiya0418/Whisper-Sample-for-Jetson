@@ -42,14 +42,3 @@ p = (1,2,sr,len(bi_wave),'NONE','not compressed')
 w.setparams(p)
 w.writeframes(bi_wave)
 w.close()
-
-wave_file = wave.open(f"my_audio_{wav_id}.wav","r")
-x = wave_file.readframes(wave_file.getnframes())
-x = np.frombuffer(x,dtype="int16")
-y = x + (np.random.randn(len(x)) * 5000).astype(np.int16)
-
-w = wave.Wave_write(f"my_audio_noise_{wav_id}.wav")
-w.setparams(wave_file.getparams())
-w.writeframes(y)
-w.close()
-
