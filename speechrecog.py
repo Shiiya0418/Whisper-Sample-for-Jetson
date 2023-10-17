@@ -9,7 +9,7 @@ model = whisper.load_model("tiny", device="cpu")
 _ = model.half()
 _ = model.cuda()
 
-for m in model.modules:
+for m in model.modules():
     if isinstance(m, whisper.model.LayerNorm):
         m.float()
 
