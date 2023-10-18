@@ -21,6 +21,23 @@ sudo apt-get install portaudio19-dev
 ```sh
 pip install pyaudio
 ```
+## 環境構築 for GPU server
+上記のJetsonの環境構築に加え、fine-tuningで用いたライブラリ群をインストールします。
+```sh
+pip install evaluate
+```
+
+```sh
+pip install pytorch-lightning
+```
+
+```sh
+pip install torchaudio
+```
+
+```sh
+pip install jiwer
+```
 
 ## サンプルコードの実行
 
@@ -38,6 +55,10 @@ python3 speechrecog.py [認識を行いたいファイルのファイルパス]
 以下のようにして、音声ファイル( `.wav` )に白色雑音を付与することができる。
 ```sh
 python3 add_noise.py [雑音を付与したい音声ファイルのファイルパス]
+```
+### fine-tuningの動かし方
+```
+python3 finetunig.py
 ```
 
 ## scpコマンドの使い方

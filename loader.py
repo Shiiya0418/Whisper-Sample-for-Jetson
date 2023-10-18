@@ -1,5 +1,4 @@
 import torch
-#import librosa
 import whisper
 import numpy as np
 import torch.nn as nn
@@ -7,13 +6,13 @@ from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
 import torchaudio
 from torchaudio.functional import resample
-#import pyopenjtalk
-import wave
-from scipy.io.wavfile import write
 import sys
 
 class WhisperDataCollatorWhithPadding:
-    def __call__(sefl, features):
+    def __call__(
+            sefl,
+            features
+            ):
         input_ids, labels, dec_input_ids = [], [], []
         for f in features:
             input_ids.append(f["input_ids"])
@@ -40,7 +39,12 @@ class WhisperDataCollatorWhithPadding:
         return batch
 
 class FinetuneDataset(Dataset):
-    def __init__(self,data,tokenizer,sample_rate):
+    def __init__(
+            self,
+            data,
+            tokenizer,
+            sample_rate
+            ):
         super().__init__()
         self.X = data
         self.tokenizer = tokenizer
@@ -56,11 +60,7 @@ class FinetuneDataset(Dataset):
         x = split_x[0] + "_noise." + split_x[1]
         waveform,sr = torchaudio.load(x,normalize=True)
         if sr != self.sample_rate:
-            waveform = resample(waveform,sr,self.sample_rate)
-        #waveform = self.add_noise(waveform)
-        #waveform = waveform.to(torch.int16)
-        #write(f"{data[0].split('.')[0]}_noise.wav",rate=sr,data=waveform[0].cpu().detach().numpy())
-        
+            waveform = resample(waveform,sr,self.sample_rate) 
 
         mel = self.to_pad_to_mel(waveform).squeeze(0)
         text = data[1]
@@ -76,18 +76,17 @@ class FinetuneDataset(Dataset):
         input_ids = whisper.log_mel_spectrogram(padded_input)
         return input_ids
 
-    def text_kana_convert(self,text):
-        text = pyopenjtalk.g2p(text,kana=True)
-        return text
-
-    #def add_noise(self,data):
-    #    noise = torch.rand(data.shape).to(torch.float32)
-    #    noise_data = data + noise
-    #    return noise_data
-
+    #openjtalkでカナ変換を行う関数。一応残して置きます。
+    #def text_kana_convert(self,text):
+    #    text = pyopenjtalk.g2p(text,kana=True)
+    #    return text
 
 class EvalDataset(Dataset):
-    def __init__(self,X,labels):
+    def __init__(
+            self,
+            X,
+            labels
+            ):
         super().__init__()
         self.X = X
         self.labels = labels
@@ -102,8 +101,7 @@ class EvalDataset(Dataset):
 
 def load_data():
     #使用するデータの準備
-    #fr = open('data/ROHAN4600/metadata.csv', "r", encoding='UTF-8')
-    fr = open('metadata.csv', "r", encoding='UTF-8')
+    fr = open('ROHAN4600/metadata.csv', "r", encoding='UTF-8')
     ############################################################################
     #csvの形式は以下のようなものを想定
     #my_audio_0.wav,文章
@@ -116,17 +114,15 @@ def load_data():
     datalist = fr.readlines()
     train_data = []
     eval_data = []
-    train_num = 100
-    valid_num = 30
+    train_num = 950
+    valid_num = 50
     for i, line1 in enumerate(datalist):
         filename = line1.split( ',' )[0]
         line2 = line1.split( ',' )[1]
-        if i < train_num:                                        #train データの数に合わせる
+        if i < train_num:                                 
             train_data.append((filename,line2))
-        elif train_num <= i and i < train_num + valid_num:#evalationデータになる
+        elif train_num <= i and i < train_num + valid_num:
             eval_data.append((filename,line2))
-        #else:#evalationデータになる
-        #    eval_data.append((filename,line2))
 
     print("データ数一覧:")
     print(f"訓練用データ: {len(train_data)}")

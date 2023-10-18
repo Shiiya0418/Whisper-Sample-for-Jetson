@@ -11,13 +11,11 @@ from whisper_mode_module import WhisperModelModule
 
 class Config:
     def __init__(self):
-        #self.learning_rate = 0.0001
-        self.learning_rate = 0.00001
+        self.learning_rate = 0.0001
         self.weight_decay = 0.01
         self.adam_epsilon = 1e-8
         self.warmup_steps = 2
-        #self.batch_size = 16
-        self.batch_size = 16
+        self.batch_size = 32
         self.num_worker = 2
         self.num_train_epochs = 30
         self.gradient_accumulation_steps = 1
@@ -40,7 +38,6 @@ class Config:
 
 def main():
     model_name = "tiny"
-    #save_name = "ft_whisper_ROHAN4600_1000.pth"
     save_name = "ft_whisper_best.pth"
     lang = "ja"
     cfg = Config()
