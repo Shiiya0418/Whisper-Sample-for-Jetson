@@ -12,7 +12,17 @@ from loader import *
 import sys
 
 class WhisperModelModule(LightningModule):
-    def __init__(self, cfg=None, model_name="base", lang="ja", train_dataset=[], eval_dataset=[],save_name = None) -> None:
+    def __init__(
+            self, 
+            cfg=None, 
+            model_name="base", 
+            lang="ja", 
+            train_dataset=[], 
+            eval_dataset=[],
+            train_data_num=1,
+            valid_data_num=1,
+            save_name = None
+            ) -> None:
         super().__init__()
         # モデルやトークナイザーの設定です。
         self.options = whisper.DecodingOptions(language=lang, without_timestamps=True)
@@ -35,6 +45,16 @@ class WhisperModelModule(LightningModule):
         self.__train_dataset = train_dataset # List[(audioのID, audioのパス, audioのテキスト)]
         self.__eval_dataset = eval_dataset # List[(audioのID, audioのパス, audioのテキスト)]
         self.max_loss = sys.maxsize
+        self.train_data_num = train_data_num
+        self.valid_data_num = valid_data_num
+        self.train_loss = []
+        self.train_batch_loss = []
+        self.valid_loss = []
+        self.valid_batch_loss = []
+        self.batch_cer = []
+        self.cer = []
+        self.batch_wer = []
+        self.wer = []
     
     def forward(self, x):
         return self.model(x)
@@ -50,6 +70,10 @@ class WhisperModelModule(LightningModule):
         out = self.model.decoder(dec_input_ids, audio_features) # デコーダのみ学習
         loss = self.loss_fn(out.view(-1, out.size(-1)), labels.view(-1))
         self.log("train/loss", loss, on_step=True, prog_bar=True, logger=True)
+        self.train_batch_loss.append(loss.item())
+        if len(self.train_batch_loss) == self.train_data_num // input_ids.shape[0]:
+            self.train_loss.append(np.mean(self.train_batch_loss))
+            self.train_batch_loss = []
         return loss
     
     def validation_step(self, batch, batch_id):
@@ -72,18 +96,24 @@ class WhisperModelModule(LightningModule):
             o = torch.argmax(o, dim=1)
             o_list.append(self.tokenizer.decode(o)) 
             l_list.append(self.tokenizer.decode(l))
-            #o_list.append(self.tokenizer.decode(o, skip_special_tokens=True)) 
-            #l_list.append(self.tokenizer.decode(l, skip_special_tokens=True))
         cer = self.metrics_cer.compute(references=l_list, predictions=o_list)
         wer = self.metrics_wer.compute(references=l_list, predictions=o_list)
-        #print("#" * 30)
-        #print(o_list)
-        #print(l_list)
-        #print("#" * 30)
 
         self.log("val/loss", loss, on_step=True, prog_bar=True, logger=True)
         self.log("val/cer", cer, on_step=True, prog_bar=True, logger=True)
         self.log("val/wer", wer, on_step=True, prog_bar=True, logger=True)
+
+        self.valid_batch_loss.append(loss.item())
+        self.batch_cer.append(cer)
+        self.batch_wer.append(wer)
+        if len(self.valid_batch_loss) == self.valid_data_num // input_ids.shape[0]:
+            self.valid_loss.append(np.mean(self.valid_batch_loss))
+            self.cer.append(np.mean(self.batch_cer))
+            self.wer.append(np.mean(self.batch_wer))
+            self.valid_batch_loss = []
+            self.batch_cer = []
+            self.batch_wer = []
+
 
         if loss.item() < self.max_loss:
             self.max_loss = loss.item()
@@ -148,7 +178,7 @@ class WhisperModelModule(LightningModule):
         print(self.cfg)
         dataset = FinetuneDataset(self.__eval_dataset, self.tokenizer, self.cfg.sample_rate)
         return torch.utils.data.DataLoader(dataset, 
-                          batch_size=self.cfg.batch_size, 
+                          batch_size=1, 
                           num_workers=self.cfg.num_worker,
                           collate_fn=WhisperDataCollatorWhithPadding()
                           )

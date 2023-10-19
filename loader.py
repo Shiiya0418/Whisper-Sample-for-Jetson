@@ -56,8 +56,6 @@ class FinetuneDataset(Dataset):
     def __getitem__(self,idx):
         data = self.X[idx]
         x = data[0]
-        split_x = data[0].split(".")
-        x = split_x[0] + "_noise." + split_x[1]
         waveform,sr = torchaudio.load(x,normalize=True)
         if sr != self.sample_rate:
             waveform = resample(waveform,sr,self.sample_rate) 
@@ -101,7 +99,8 @@ class EvalDataset(Dataset):
 
 def load_data():
     #使用するデータの準備
-    fr = open('ROHAN4600/metadata.csv', "r", encoding='UTF-8')
+    #fr = open('data/clean_metadata.csv', "r", encoding='UTF-8') #ノイズなしデータの読み込みを行うためのファイル(予備)
+    fr = open('data/noise_metadata.csv', "r", encoding='UTF-8') #ノイズありデータの読み込みを行うためのファイル
     ############################################################################
     #csvの形式は以下のようなものを想定
     #my_audio_0.wav,文章
@@ -114,8 +113,8 @@ def load_data():
     datalist = fr.readlines()
     train_data = []
     eval_data = []
-    train_num = 950
-    valid_num = 50
+    train_num = 100
+    valid_num = 30
     for i, line1 in enumerate(datalist):
         filename = line1.split( ',' )[0]
         line2 = line1.split( ',' )[1]
@@ -124,8 +123,7 @@ def load_data():
         elif train_num <= i and i < train_num + valid_num:
             eval_data.append((filename,line2))
 
-    print("データ数一覧:")
-    print(f"訓練用データ: {len(train_data)}")
-    print(f"テスト用データ: {len(eval_data)}")
+    print(f"train data: {len(train_data)}")
+    print(f"validation data: {len(eval_data)}")
 
     return train_data,eval_data
