@@ -154,6 +154,7 @@ cython_debug/
 
 *.wav
 *.pth
+*/.DS_Store
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
