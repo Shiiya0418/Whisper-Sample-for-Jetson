@@ -123,7 +123,7 @@ sudo resize2fs /dev/mmcblk0p1
 ## cache領域の拡大方法
 以下のコマンドを順番に実行してください。
 
-こちらが参考になります。（ (参考ページ)[https://www.hiramine.com/physicalcomputing/jetsonnano/swap_check_extend.html] ）
+こちらが参考になります。（ [参考ページ](https://www.hiramine.com/physicalcomputing/jetsonnano/swap_check_extend.html) ）
 
 ```sh
 sudo fallocate -l 4G /swapfile
