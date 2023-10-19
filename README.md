@@ -87,3 +87,8 @@ scp jetson@192.168.11.[Jetson番号]:~/work_dir/test.wav ./
 ```sh
 scp -r jetson@192.168.11.[Jetson番号]:~/work_dir ./
 ```
+
+### 補足
+fine-tuning用訓練データは [VOICEVOX](https://voicevox.hiroshiba.jp/) を用いて作られました。
+
+©︎VOICEVOX:ずんだもん [VOICEVOX](https://voicevox.hiroshiba.jp/)
