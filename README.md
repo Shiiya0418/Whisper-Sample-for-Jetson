@@ -40,6 +40,10 @@ pip install torchaudio
 pip install jiwer
 ```
 
+```sh
+pip install matplotlib
+```
+
 リポジトリに含まれる訓練データ `data.zip` を `unzip` で解凍します。
 ```sh
 unzip data.zip
@@ -69,7 +73,7 @@ unzip data.zip
 ```
 
 ```sh
-python3 finetunig.py
+python3 finetuning.py
 ```
 
 fine-tuning後のモデルを使って音声認識を試す場合は、 `data/my_audio_131_noise.wav` 以降のファイルを使用して下しさい。`data/my_audio_0_noise.wav` 〜 `data/my_audio_130_noise_.wav` のファイルは訓練に使用されています。
