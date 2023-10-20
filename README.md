@@ -25,6 +25,10 @@ pip install pyaudio
 ## 環境構築 for GPU server
 上記のJetsonの環境構築に加え、fine-tuningで用いたライブラリ群をインストールします。
 ```sh
+pip install -U openai-whisper
+```
+
+```sh
 pip install evaluate
 ```
 
