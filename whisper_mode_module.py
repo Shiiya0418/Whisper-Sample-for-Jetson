@@ -117,7 +117,7 @@ class WhisperModelModule(LightningModule):
 
         if loss.item() < self.max_loss:
             self.max_loss = loss.item()
-            torch.save(self.model.state_dict(),self.save_name)
+            torch.save(self.model.state_dict(), self.save_name)
 
         return {
             "cer": cer,
@@ -167,7 +167,7 @@ class WhisperModelModule(LightningModule):
     def train_dataloader(self):
         """訓練データローダーを作成する"""
         dataset = FinetuneDataset(self.__train_dataset, self.tokenizer, self.cfg.sample_rate)
-        return torch.utils.data.DataLoader(dataset, 
+        return torch.utils.data.DataLoader(dataset,
                           batch_size=self.cfg.batch_size, 
                           drop_last=True, shuffle=True, num_workers=self.cfg.num_worker,
                           collate_fn=WhisperDataCollatorWhithPadding()

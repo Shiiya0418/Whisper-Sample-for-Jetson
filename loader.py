@@ -56,9 +56,9 @@ class FinetuneDataset(Dataset):
     def __getitem__(self,idx):
         data = self.X[idx]
         x = data[0]
-        waveform,sr = torchaudio.load(x,normalize=True)
+        waveform,sr = torchaudio.load(x, normalize=True)
         if sr != self.sample_rate:
-            waveform = resample(waveform,sr,self.sample_rate) 
+            waveform = resample(waveform, sr, self.sample_rate) 
 
         mel = self.to_pad_to_mel(waveform).squeeze(0)
         text = data[1]
@@ -67,7 +67,7 @@ class FinetuneDataset(Dataset):
         text = [*self.tokenizer.sot_sequence_including_notimestamps] + self.tokenizer.encode(text)
         labels = text[1:] + [self.tokenizer.eot]
 
-        return {"input_ids":mel,"dec_input_ids":text,"labels":labels}
+        return {"input_ids": mel, "dec_input_ids": text, "labels": labels}
 
     def to_pad_to_mel(self,data):
         padded_input = whisper.pad_or_trim(np.asarray(data,dtype=np.float32))
@@ -95,7 +95,7 @@ class EvalDataset(Dataset):
     def __getitem__(self,idx):
         x = self.X[idx]
         label = self.labels[idx]
-        return x,label
+        return x, label
 
 def load_data():
     #使用するデータの準備
@@ -116,14 +116,14 @@ def load_data():
     train_num = 100
     valid_num = 30
     for i, line1 in enumerate(datalist):
-        filename = line1.split( ',' )[0]
-        line2 = line1.split( ',' )[1]
+        filename = line1.split(',')[0]
+        line2 = line1.split(',')[1]
         if i < train_num:                                 
-            train_data.append((filename,line2))
+            train_data.append((filename, line2))
         elif train_num <= i and i < train_num + valid_num:
-            eval_data.append((filename,line2))
+            eval_data.append((filename, line2))
 
     print(f"train data: {len(train_data)}")
     print(f"validation data: {len(eval_data)}")
 
-    return train_data,eval_data
+    return train_data, eval_data

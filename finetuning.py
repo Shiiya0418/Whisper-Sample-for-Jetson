@@ -15,16 +15,25 @@ import matplotlib.pyplot as plt
 import csv
 
 class Config:
-    def __init__(self):
-        self.learning_rate = 0.0001
-        self.weight_decay = 0.01
-        self.adam_epsilon = 1e-8
-        self.warmup_steps = 2
-        self.batch_size = 8
-        self.num_worker = 2
-        self.num_train_epochs = 30
-        self.gradient_accumulation_steps = 1
-        self.sample_rate = 16000
+    def __init__(self,
+                 learning_rate=0.0001,
+                 weight_decay=0.01,
+                 adam_epsilon=1e-8,
+                 warmup_steps=2,
+                 batch_size=8,
+                 num_worker=2,
+                 num_train_epochs=30,
+                 gradient_accumulation_steps=1,
+                 sample_rate=16000):
+        self.learning_rate = learning_rate
+        self.weight_decay = weight_decay
+        self.adam_epsilon = adam_epsilon
+        self.warmup_steps = warmup_steps
+        self.batch_size = batch_size
+        self.num_worker = num_worker
+        self.num_train_epochs = num_train_epochs
+        self.gradient_accumulation_steps = gradient_accumulation_steps
+        self.sample_rate = sample_rate
 
     def __str__(self):
         text = "#" * 30 + "\n"
@@ -49,7 +58,15 @@ def main():
     train_data,eval_data = load_data()
     train_data_num = len(train_data)
     eval_data_num = len(eval_data)
-    model = WhisperModelModule(cfg,model_name,lang,train_data,eval_data,train_data_num,eval_data_num,save_name)
+    model = WhisperModelModule(
+        cfg,
+        model_name,
+        lang,train_data,
+        eval_data,
+        train_data_num,
+        eval_data_num,
+        save_name
+    )
     trainer = Trainer(
         precision=16,
         accelerator="gpu",
@@ -57,18 +74,18 @@ def main():
         accumulate_grad_batches=cfg.gradient_accumulation_steps
     )
     trainer.fit(model)
-    plt.plot([x for x in range(len(model.train_loss))],model.train_loss,label = "train")
-    plt.plot([x for x in range(len(model.valid_loss))],model.valid_loss,label = "valid")
+    plt.plot([x for x in range(len(model.train_loss))], model.train_loss, label = "train")
+    plt.plot([x for x in range(len(model.valid_loss))], model.valid_loss, label = "valid")
     plt.ylabel("loss")
     plt.xlabel("epoch")
     plt.legend()
     plt.savefig("loss_curve.png")
 
-    with open("train_log.csv","w") as f:
+    with open("train_log.csv", "w") as f:
         writer = csv.writer(f)
-        writer.writerow(["epoch","train_loss","valid_loss","valid_cer","valid_wer"])
+        writer.writerow(["epoch", "train_loss", "valid_loss", "valid_cer", "valid_wer"])
         for i in range(cfg.num_train_epochs):
-            info = [f"{i + 1}:",model.train_loss[i],model.valid_loss[i],model.cer[i],model.wer[i]]
+            info = [f"{i + 1}:", model.train_loss[i], model.valid_loss[i], model.cer[i], model.wer[i]]
             writer.writerow(info)
 
 if __name__ == "__main__":
