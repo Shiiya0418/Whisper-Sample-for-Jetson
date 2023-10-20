@@ -128,7 +128,7 @@ sudo resize2fs /dev/mmcblk0p1
 
 もしもJetsonにログインできない場合は、直接Jetsonにキーボードとディスプレイを差し、 `ctl` キー、 `alt` キー、 `F2` キーを同時に押してください。 CLIモードで Jetsonを操作できます。
 
-## cache領域の拡大方法
+## swap領域の拡大方法
 以下のコマンドを順番に実行してください。
 
 こちらが参考になります。（ [参考ページ](https://www.hiramine.com/physicalcomputing/jetsonnano/swap_check_extend.html) ）
@@ -142,7 +142,7 @@ sudo chmod 600 /swapfile
 ```
 
 ```sh
-sudo mkswap/swapfile
+sudo mkswap /swapfile
 ```
 
 次に、 `/etc/fstab` を編集します。お好みのエディタで開いてください。
